@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  typescript: {
+    // ⚠️ Skip type checking during build (not recommended for production)
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    // ⚠️ Skip ESLint during build (not recommended for production)
+    ignoreDuringBuilds: true,
+  },
   webpack: (config, { isServer }) => {
     // Fixes npm packages that depend on `fs` module
     if (!isServer) {

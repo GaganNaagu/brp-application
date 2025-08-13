@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-
 import { getDiscordClient } from "@/lib/discord-bot";
 
 // // Constants as before
@@ -46,54 +45,3 @@ export async function POST(req: Request) {
     );
   }
 }
-
-// export async function PATCH(
-//   req: Request,
-//   { params }: { params: { userId: string } }
-// ) {
-//   const { userId } = await params;
-
-//   if (typeof userId !== "string") {
-//     return NextResponse.json({
-//       error: "Invalid userId",
-//     });
-//   }
-
-//   try {
-//     // Acquire the already logged in Discord client
-//     const client: Client = await getDiscordClient();
-
-//     if (!client.isReady()) {
-//       return NextResponse.json({
-//         error: "Discord client not ready",
-//       });
-//     }
-
-//     // Fetch the guild
-//     const guild = await client.guilds.fetch(GUILD_ID);
-//     // Fetch the guild member by userId
-//     const member = await guild.members.fetch(userId).catch(() => null);
-//     console.log(member);
-//     if (!member) {
-//       // Member not found in guild, so not whitelisted
-//       return NextResponse.json({
-//         message: "Member not found in guild, so not whitelisted",
-//         whitelisted: false,
-//       });
-//     }
-
-//     // Check if member has the whitelisted role
-//     const hasRole = member.roles.cache.has(WHITELIST_ROLE_ID);
-
-//     return NextResponse.json({
-//       message: "Whitelist status updatedsuccessfully",
-//       whitelisted: hasRole,
-//     });
-//   } catch (error) {
-//     console.error("Error updating application:", error);
-//     return NextResponse.json(
-//       { error: "Failed to check whitelist status" },
-//       { status: 500 }
-//     );
-//   }
-// }

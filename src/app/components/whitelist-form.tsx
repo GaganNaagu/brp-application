@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import AuthButton from "./auth-button";
 import ProfileCard from "./profile-card";
 import { motion, AnimatePresence } from "framer-motion";
+import { json } from "stream/consumers";
 
 const formSchema = z.object({
   username: z.string().min(3, {
@@ -87,7 +88,7 @@ export default function WhitelistForm() {
         },
         body: JSON.stringify(applicationData),
       });
-
+      console.log(response);
       if (response.ok) {
         toast({
           title: "Application Submitted",

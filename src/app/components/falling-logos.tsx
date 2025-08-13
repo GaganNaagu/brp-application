@@ -1,20 +1,20 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import Image from 'next/image'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Logo {
-  id: number
-  x: number
-  y: number
-  rotation: number
-  speed: number
-  size: number
+  id: number;
+  x: number;
+  y: number;
+  rotation: number;
+  speed: number;
+  size: number;
 }
 
 export default function FallingLogos() {
-  const [logos, setLogos] = useState<Logo[]>([])
+  const [logos, setLogos] = useState<Logo[]>([]);
 
   useEffect(() => {
     const createLogo = (): Logo => ({
@@ -23,31 +23,41 @@ export default function FallingLogos() {
       y: -20,
       rotation: Math.random() * 360,
       speed: 0.3 + Math.random() * 0.4,
-      size: 20 + Math.random() * 30
-    })
+      size: 20 + Math.random() * 30,
+    });
 
-    setLogos(Array.from({ length: 10 }, createLogo))
+    setLogos(Array.from({ length: 10 }, createLogo));
 
     const animate = () => {
-      setLogos(prevLogos => {
-        return prevLogos.map(logo => ({
-          ...logo,
-          y: logo.y + logo.speed,
-          rotation: logo.rotation + 0.5
-        })).filter(logo => logo.y < 120)
-          .concat(Array.from({ length: Math.max(0, 10 - prevLogos.length) }, createLogo))
-      })
-    }
+      setLogos((prevLogos) => {
+        return prevLogos
+          .map((logo) => ({
+            ...logo,
+            y: logo.y + logo.speed,
+            rotation: logo.rotation + 0.5,
+          }))
+          .filter((logo) => logo.y < 120)
+          .concat(
+            Array.from(
+              { length: Math.max(0, 10 - prevLogos.length) },
+              createLogo
+            )
+          );
+      });
+    };
 
-    const intervalId = setInterval(animate, 33)
+    const intervalId = setInterval(animate, 33);
 
-    return () => clearInterval(intervalId)
-  }, [])
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+    <div
+      className="fixed inset-0 pointer-events-none overflow-hidden"
+      style={{ zIndex: 0 }}
+    >
       <AnimatePresence>
-        {logos.map(logo => (
+        {logos.map((logo) => (
           <motion.div
             key={logo.id}
             initial={{ opacity: 0, scale: 0 }}
@@ -55,17 +65,17 @@ export default function FallingLogos() {
             exit={{ opacity: 0, scale: 0 }}
             transition={{ duration: 0.5 }}
             style={{
-              position: 'absolute',
+              position: "absolute",
               left: `${logo.x}%`,
               top: `${logo.y}%`,
             }}
           >
             <motion.div
               animate={{ rotate: logo.rotation }}
-              transition={{ type: 'tween', duration: 0.5 }}
+              transition={{ type: "tween", duration: 0.5 }}
             >
               <Image
-                src="/logo.png"
+                src="https://r2.fivemanage.com/BR7Q2n0nR3UkMtqZisSkc/brp-logo.png"
                 alt=""
                 width={Math.round(logo.size)}
                 height={Math.round(logo.size)}
@@ -76,6 +86,5 @@ export default function FallingLogos() {
         ))}
       </AnimatePresence>
     </div>
-  )
+  );
 }
-

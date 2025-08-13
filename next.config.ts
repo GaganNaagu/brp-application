@@ -14,12 +14,22 @@ const nextConfig = {
 
     config.module.rules.push({
       test: /\.node$/,
-      use: 'node-loader',
+      use: "node-loader",
     });
 
     return config;
   },
-}
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "r2.fivemanage.com",
+        port: "",
+        pathname: "/BR7Q2n0nR3UkMtqZisSkc/*",
+        search: "",
+      },
+    ],
+  },
+};
 
-module.exports = nextConfig
-
+module.exports = nextConfig;

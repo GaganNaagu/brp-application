@@ -48,7 +48,7 @@ export default function WhitelistForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: session } = useSession();
   const { toast } = useToast();
-  const [isWhitelisted, setIsWhitelisted] = useState<boolean | null>(null);
+  const [isWhitelisted, setIsWhitelisted] = useState<boolean | null>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -118,7 +118,6 @@ export default function WhitelistForm() {
         return;
       }
       try {
-
         const res = await fetch("/api/whitelist", {
           method: "POST",
           headers: {

@@ -1,50 +1,51 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { isAdmin } from "@/lib/auth";
-
-const archiveFilePath = path.join(
-  process.cwd(),
-  "data",
-  "archived_applications.json"
-);
+import { supabase } from "@/lib/supabase";
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.discord) {
+    if (!session?.discord || !isAdmin(session.discord.id)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!isAdmin(session.discord.id)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const { data: archivedApplications, error } = await supabase
+      .from("archived_applications")
+      .select("*")
+      .order("archived_at", { ascending: false });
+
+    if (error) {
+      console.error("Supabase error:", error);
+      throw error;
     }
 
-    // Create the data directory if it doesn't exist
-    const dataDir = path.join(process.cwd(), "data");
-    try {
-      await fs.access(dataDir);
-    } catch {
-      await fs.mkdir(dataDir, { recursive: true });
-    }
+    // Transform data back to frontend format
+    const transformedApplications =
+      archivedApplications?.map((app) => ({
+        id: app.id,
+        timestamp: app.timestamp,
+        username: app.username,
+        age: app.age,
+        steamId: app.steam_id,
+        cfxAccount: app.cfx_account,
+        experience: app.experience,
+        character: app.character,
+        discord: {
+          id: app.discord_id,
+          username: app.discord_username,
+          avatar: app.discord_avatar,
+          email: app.discord_email,
+        },
+        status: app.status,
+        statusReason: app.status_reason,
+        updatedAt: app.updated_at,
+      })) || [];
 
-    // Try to read the archive file, create it if it doesn't exist
-    try {
-      const data = await fs.readFile(archiveFilePath, "utf8");
-      return NextResponse.json(JSON.parse(data));
-    } catch (error) {
-      console.log("No existing archive file, creating a new one", error);
-      // If file doesn't exist, create it with an empty array
-      await fs.writeFile(archiveFilePath, "[]", "utf8");
-      return NextResponse.json([]);
-    }
+    return NextResponse.json(transformedApplications);
   } catch (error) {
-    console.error("Error in archive route:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    console.error("Error fetching archived applications:", error);
+    return NextResponse.json([], { status: 500 });
   }
 }

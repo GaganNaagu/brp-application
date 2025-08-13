@@ -1,75 +1,91 @@
-import { NextResponse } from 'next/server'
-import fs from 'fs/promises'
-import path from 'path'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../../auth/[...nextauth]/route"
-import { sendDirectMessage } from '@/lib/discord-bot'
-import { isAdmin } from '@/lib/auth'
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../auth/[...nextauth]/route";
+import { sendDirectMessage } from "@/lib/discord-bot";
+import { isAdmin } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 
-const dataFilePath = path.join(process.cwd(), 'data', 'applications.json')
-const archiveFilePath = path.join(process.cwd(), 'data', 'archived_applications.json')
-
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session || !session.discord) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const session = await getServerSession(authOptions);
+    if (!session?.discord) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     if (!isAdmin(session.discord.id)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { id } = params
-    const { status, reason } = await req.json()
+    const { id } = await params;
+    const { status, reason } = await req.json();
 
-    // Read existing data
-    const data = await fs.readFile(dataFilePath, 'utf8')
-    let applications = JSON.parse(data)
+    // Get the application
+    const { data: application, error: fetchError } = await supabase
+      .from("applications")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    // Find and update the application
-    const applicationIndex = applications.findIndex((app: any) => app.id === id)
-    if (applicationIndex === -1) {
-      return NextResponse.json({ error: 'Application not found' }, { status: 404 })
+    if (fetchError || !application) {
+      return NextResponse.json(
+        { error: "Application not found" },
+        { status: 404 }
+      );
     }
-
-    const updatedApplication = {
-      ...applications[applicationIndex],
-      status,
-      statusReason: reason,
-      updatedAt: new Date().toISOString()
-    }
-
-    // Remove the application from the active list
-    applications.splice(applicationIndex, 1)
-
-    // Write updated active applications back to file
-    await fs.writeFile(dataFilePath, JSON.stringify(applications, null, 2))
 
     // Archive the application
-    let archivedApplications = []
-    try {
-      const archivedData = await fs.readFile(archiveFilePath, 'utf8')
-      archivedApplications = JSON.parse(archivedData)
-    } catch (error) {
-      console.log('No existing archive file, creating a new one')
-    }
-    archivedApplications.push(updatedApplication)
-    await fs.writeFile(archiveFilePath, JSON.stringify(archivedApplications, null, 2))
+    const archivedApplication = {
+      ...application,
+      status,
+      status_reason: reason,
+      updated_at: new Date().toISOString(),
+      archived_at: new Date().toISOString(),
+    };
 
-    // Send Discord DM to the applicant
-    try {
-      await sendDirectMessage(updatedApplication.discord.id, status as 'approved' | 'denied', reason)
-      console.log(`Discord message sent to user ${updatedApplication.discord.id}`)
-    } catch (error) {
-      console.error('Failed to send Discord message:', error)
-      // Don't throw an error here, just log it
+    // Insert into archive
+    const { error: archiveError } = await supabase
+      .from("archived_applications")
+      .insert([archivedApplication]);
+
+    if (archiveError) {
+      console.error("Archive error:", archiveError);
+      throw archiveError;
     }
 
-    return NextResponse.json({ message: 'Application status updated and archived successfully' })
-  } catch (error) {
-    console.error('Error updating application:', error)
-    return NextResponse.json({ error: 'Failed to update application' }, { status: 500 })
+    // Delete from active applications
+    const { error: deleteError } = await supabase
+      .from("applications")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) {
+      console.error("Delete error:", deleteError);
+      throw deleteError;
+    }
+
+    // Send Discord message
+    try {
+      await sendDirectMessage(
+        application.discord_id,
+        status as "approved" | "denied",
+        reason
+      );
+      console.log(`Discord message sent to user ${application.discord_id}`);
+    } catch (err) {
+      console.error("Failed to send Discord message:", err);
+    }
+
+    return NextResponse.json({
+      message: "Application status updated and archived successfully",
+    });
+  } catch (err) {
+    console.error("Error updating application:", err);
+    return NextResponse.json(
+      { error: "Failed to update application" },
+      { status: 500 }
+    );
   }
 }
-

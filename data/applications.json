@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "id": "1755104610318",
+    "timestamp": "2025-08-13T17:03:30.318Z",
+    "username": "Muralidhar",
+    "age": 18,
+    "steamId": "12345678912345678",
+    "cfxAccount": "https://aas.com",
+    "experience": "responseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponse",
+    "character": "responseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponse",
+    "discord": {
+      "id": "485684006940311573",
+      "username": "naagu",
+      "discriminator": "0",
+      "avatar": "f190c0baecb38a7ca9da7f6ea4ff8bf5",
+      "banner": null,
+      "accentColor": 16758528,
+      "verified": true,
+      "email": "gaganchintu5106@gmail.com",
+      "createdAt": "2018-09-02T05:34:50.827Z"
+    }
+  },
+  {
+    "id": "1755104710234",
+    "timestamp": "2025-08-13T17:05:10.234Z",
+    "username": "Muralidhar",
+    "age": 18,
+    "steamId": "12345678912345678",
+    "cfxAccount": "https://aas.com",
+    "experience": "responseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponse",
+    "character": "responseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponseresponse",
+    "discord": {
+      "id": "485684006940311573",
+      "username": "naagu",
+      "discriminator": "0",
+      "avatar": "f190c0baecb38a7ca9da7f6ea4ff8bf5",
+      "banner": null,
+      "accentColor": 16758528,
+      "verified": true,
+      "email": "gaganchintu5106@gmail.com",
+      "createdAt": "2018-09-02T05:34:50.827Z"
+    }
+  }
+]

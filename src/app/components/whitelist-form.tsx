@@ -30,12 +30,12 @@ const formSchema = z.object({
   age: z.number().min(18, {
     message: "You must be at least 18 years old.",
   }),
-  // steamId: z.string().regex(/^[0-9]{17}$/, {
-  //   message: "Invalid Steam ID. It should be a 17-digit number.",
-  // }),
-  // cfxAccount: z.string().url({
-  //   message: "Please enter a valid CFX account URL.",
-  // }),
+  steamId: z.string().regex(/^[0-9]{17}$/, {
+    message: "Invalid Steam ID. It should be a 17-digit number.",
+  }),
+  cfxAccount: z.string().url({
+    message: "Please enter a valid CFX account URL.",
+  }),
   experience: z.string().min(50, {
     message: "Please provide at least 50 characters about your RP experience.",
   }),
@@ -56,8 +56,8 @@ export default function WhitelistForm() {
     defaultValues: {
       username: "",
       age: 18,
-      // steamId: "",
-      // cfxAccount: "",
+      steamId: "12345678912345678",
+      cfxAccount: "https://cfx.re/join/your-cfx-account",
       experience: "",
       character: "",
     },

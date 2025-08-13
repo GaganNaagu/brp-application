@@ -25,17 +25,17 @@ import { json } from "stream/consumers";
 
 const formSchema = z.object({
   username: z.string().min(3, {
-    message: "Username must be at least 3 characters.",
+    message: "In-Game Name must be at least 3 characters.",
   }),
   age: z.number().min(18, {
     message: "You must be at least 18 years old.",
   }),
-  steamId: z.string().regex(/^[0-9]{17}$/, {
-    message: "Invalid Steam ID. It should be a 17-digit number.",
-  }),
-  cfxAccount: z.string().url({
-    message: "Please enter a valid CFX account URL.",
-  }),
+  // steamId: z.string().regex(/^[0-9]{17}$/, {
+  //   message: "Invalid Steam ID. It should be a 17-digit number.",
+  // }),
+  // cfxAccount: z.string().url({
+  //   message: "Please enter a valid CFX account URL.",
+  // }),
   experience: z.string().min(50, {
     message: "Please provide at least 50 characters about your RP experience.",
   }),
@@ -56,8 +56,8 @@ export default function WhitelistForm() {
     defaultValues: {
       username: "",
       age: 18,
-      steamId: "",
-      cfxAccount: "",
+      // steamId: "",
+      // cfxAccount: "",
       experience: "",
       character: "",
     },
@@ -247,7 +247,7 @@ export default function WhitelistForm() {
                       </div>
                     </motion.div>
 
-                    {/* Game Info */}
+                    {/* Game Info
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -257,7 +257,7 @@ export default function WhitelistForm() {
                         Game Information
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* SteamID */}
+                        SteamID
                         <FormField
                           control={form.control}
                           name="steamId"
@@ -278,7 +278,7 @@ export default function WhitelistForm() {
                             </FormItem>
                           )}
                         />
-                        {/* CFX */}
+                        CFX
                         <FormField
                           control={form.control}
                           name="cfxAccount"
@@ -299,7 +299,7 @@ export default function WhitelistForm() {
                           )}
                         />
                       </div>
-                    </motion.div>
+                    </motion.div> */}
 
                     {/* Roleplay Info */}
                     <motion.div

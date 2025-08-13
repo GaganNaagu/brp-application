@@ -32,11 +32,11 @@ export async function PATCH(
 
     // Read existing data
     const data = await fs.readFile(dataFilePath, "utf8");
-    let applications = JSON.parse(data);
+    const applications = JSON.parse(data);
 
     // Find and update the application
     const applicationIndex = applications.findIndex(
-      (app: any) => app.id === id
+      (app: unknown) => (app as { id: string }).id === id
     );
     if (applicationIndex === -1) {
       return NextResponse.json(
@@ -64,7 +64,7 @@ export async function PATCH(
       const archivedData = await fs.readFile(archiveFilePath, "utf8");
       archivedApplications = JSON.parse(archivedData);
     } catch (error) {
-      console.log("No existing archive file, creating a new one");
+      console.log("No existing archive file, creating a new one", error);
     }
     archivedApplications.push(updatedApplication);
     await fs.writeFile(

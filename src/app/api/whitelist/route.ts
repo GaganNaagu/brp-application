@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { Client } from "discord.js";
+
 import { getDiscordClient } from "@/lib/discord-bot";
 
 // // Constants as before

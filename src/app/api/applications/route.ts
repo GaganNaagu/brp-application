@@ -1,48 +1,54 @@
-import { NextResponse } from 'next/server'
-import fs from 'fs/promises'
-import path from 'path'
+import { NextResponse } from "next/server";
+import fs from "fs/promises";
+import path from "path";
 
-const dataFilePath = path.join(process.cwd(), 'data', 'applications.json')
+const dataFilePath = path.join(process.cwd(), "data", "applications.json");
 
 export async function POST(req: Request) {
   try {
-    const application = await req.json()
-    
+    const application = await req.json();
+
     // Read existing data
-    let applications = []
+    let applications = [];
     try {
-      const data = await fs.readFile(dataFilePath, 'utf8')
-      applications = JSON.parse(data)
+      const data = await fs.readFile(dataFilePath, "utf8");
+      applications = JSON.parse(data);
     } catch (error) {
       // File doesn't exist or is empty, start with an empty array
+      console.log("No existing applications file, starting fresh", error);
     }
 
     // Add new application with a unique ID and timestamp
     const newApplication = {
       id: Date.now().toString(),
       timestamp: new Date().toISOString(),
-      ...application
-    }
-    applications.push(newApplication)
+      ...application,
+    };
+    applications.push(newApplication);
 
     // Write updated data back to file
-    await fs.writeFile(dataFilePath, JSON.stringify(applications, null, 2))
+    await fs.writeFile(dataFilePath, JSON.stringify(applications, null, 2));
 
-    return NextResponse.json({ message: 'Application submitted successfully' })
+    return NextResponse.json({ message: "Application submitted successfully" });
   } catch (error) {
-    console.error('Error saving application:', error)
-    return NextResponse.json({ error: 'Failed to save application' }, { status: 500 })
+    console.error("Error saving application:", error);
+    return NextResponse.json(
+      { error: "Failed to save application" },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET() {
   try {
-    const data = await fs.readFile(dataFilePath, 'utf8')
-    const applications = JSON.parse(data)
-    return NextResponse.json(applications)
+    const data = await fs.readFile(dataFilePath, "utf8");
+    const applications = JSON.parse(data);
+    return NextResponse.json(applications);
   } catch (error) {
-    console.error('Error reading applications:', error)
-    return NextResponse.json({ error: 'Failed to read applications' }, { status: 500 })
+    console.error("Error reading applications:", error);
+    return NextResponse.json(
+      { error: "Failed to read applications" },
+      { status: 500 }
+    );
   }
 }
-

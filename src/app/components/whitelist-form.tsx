@@ -139,7 +139,7 @@ export default function WhitelistForm() {
   }, [session]);
 
   // Render conditionally
-  if (isWhitelisted === null) {
+  if (isWhitelisted === null && session?.discord) {
     return <div>Loading whitelist status...</div>;
   }
 

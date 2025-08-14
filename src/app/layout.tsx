@@ -5,7 +5,7 @@ import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import ThemeToggle from "./components/theme-toggle";
 import { SessionProvider } from "./components/providers/session-provider";
-import { initializeDiscordBot } from "@/lib/discord-bot";
+import { getDiscordClient } from "@/lib/discord-bot";
 import FallingLogos from "./components/falling-logos";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 // Initialize the Discord bot on the server side
 if (typeof window === "undefined") {
-  initializeDiscordBot();
+  await getDiscordClient();
 }
 
 export default function RootLayout({

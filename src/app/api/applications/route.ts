@@ -4,7 +4,21 @@ import { supabase } from "@/lib/supabase";
 export async function POST(req: Request) {
   try {
     const applicationData = await req.json();
+    {
+      const { data: application, error } = await supabase
+        .from("applications")
+        .select("status")
+        .eq("discord_id", applicationData.discord.id)
+        .single();
 
+      const isPending = !error && application?.status === "pending";
+      if (isPending) {
+        return NextResponse.json({
+          message: "Already Application is Submitted",
+          isPending: isPending,
+        });
+      }
+    }
     const newApplication = {
       id: Date.now().toString(),
       timestamp: new Date().toISOString(),
@@ -38,7 +52,10 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Error saving application:", error);
     return NextResponse.json(
-      { error: "Failed to save application" },
+      {
+        error:
+          "There was an error submitting your application. Please try again later.",
+      },
       { status: 500 }
     );
   }

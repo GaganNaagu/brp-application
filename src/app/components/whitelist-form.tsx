@@ -50,6 +50,7 @@ export default function WhitelistForm() {
   const { data: session } = useSession();
   const { toast } = useToast();
   const [isWhitelisted, setIsWhitelisted] = useState<boolean | null>(false);
+  const [isPending, setIsPending] = useState<boolean | null>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -90,17 +91,30 @@ export default function WhitelistForm() {
       });
       console.log(response);
       if (response.ok) {
-        toast({
-          title: "Application Submitted",
-          description:
-            "Your whitelist application has been received. We will review it shortly.",
-        });
+        const data = await response.json();
+        if (data.isPending) {
+          toast({
+            title: "Application Pending",
+            description:
+              "Your whitelist application is currently pending. Please check back later.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Application Submitted",
+            description:
+              "Your whitelist application has been received. We will review it shortly.",
+          });
+        }
+        setIsPending(data.isPending);
+
         form.reset();
       } else {
         throw new Error("Failed to submit application");
       }
     } catch (error) {
       console.error("Error submitting application:", error);
+
       toast({
         title: "Submission Error",
         description:
@@ -139,18 +153,26 @@ export default function WhitelistForm() {
     checkWhitelistStatus();
   }, [session]);
 
+  if (isPending) {
+    return (
+      <div className="container mx-auto p-4 text-center text-yellow-600 font-semibold bg-yellow-200 border rounded-lg">
+        Already Application Submitted ⚠️
+      </div>
+    );
+  }
+
   // Render conditionally
   if (isWhitelisted === null && session?.discord) {
     return <div>Loading whitelist status...</div>;
   }
 
-  if (isWhitelisted) {
-    return (
-      <div className="container mx-auto p-4 text-center text-green-600 font-semibold">
-        You are already whitelisted. Thank you!
-      </div>
-    );
-  }
+  // if (isWhitelisted) {
+  //   return (
+  //     <div className="container mx-auto p-4 text-center text-green-600 font-semibold">
+  //       You are already whitelisted. Thank you!
+  //     </div>
+  //   );
+  // }
 
   return (
     <motion.div
@@ -183,190 +205,201 @@ export default function WhitelistForm() {
                 />
               </div>
               <div className="lg:col-span-2">
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-8 bg-card p-6 rounded-lg shadow-lg"
-                  >
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.2, duration: 0.5 }}
-                    >
-                      <h2 className="text-2xl font-bold mb-6">
-                        Whitelist Application
-                      </h2>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Username */}
-                        <FormField
-                          control={form.control}
-                          name="username"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Username</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Your in-game username"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                This is the username you will use in the server.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        {/* Age */}
-                        <FormField
-                          control={form.control}
-                          name="age"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Age</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  {...field}
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value, 10)
-                                        : ""
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                You must be 18 or older to join the server.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </motion.div>
+                {isWhitelisted ? (
+                  <div className="text-center text-green-600 font-semibold bg-green-300 border rounded-lg p-4">
+                    You are already whitelisted. Thank you!
+                  </div>
+                ) : (
+                  <>
+                    <Form {...form}>
+                      <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-8 bg-card p-6 rounded-lg shadow-lg"
+                      >
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.2, duration: 0.5 }}
+                        >
+                          <h2 className="text-2xl font-bold mb-6">
+                            Whitelist Application
+                          </h2>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Username */}
+                            <FormField
+                              control={form.control}
+                              name="username"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Username</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Your in-game username"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    This is the username you will use in the
+                                    server.
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            {/* Age */}
+                            <FormField
+                              control={form.control}
+                              name="age"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Age</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      {...field}
+                                      onChange={(e) =>
+                                        field.onChange(
+                                          e.target.value
+                                            ? parseInt(e.target.value, 10)
+                                            : ""
+                                        )
+                                      }
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    You must be 18 or older to join the server.
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </motion.div>
 
-                    {/* Game Info
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.4, duration: 0.5 }}
-                    >
-                      <h3 className="text-xl font-semibold mb-4">
-                        Game Information
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        SteamID
-                        <FormField
-                          control={form.control}
-                          name="steamId"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Steam ID</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Your 17-digit Steam ID"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Your Steam ID is a 17-digit number. You can find
-                                it on your Steam profile.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        CFX
-                        <FormField
-                          control={form.control}
-                          name="cfxAccount"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>CFX Account</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="https://forum.cfx.re/u/yourusername"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Your CFX forum account URL.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </motion.div> */}
+                        {/* Game Info
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.4, duration: 0.5 }}
+                        >
+                          <h3 className="text-xl font-semibold mb-4">
+                            Game Information
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            SteamID
+                            <FormField
+                              control={form.control}
+                              name="steamId"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Steam ID</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Your 17-digit Steam ID"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Your Steam ID is a 17-digit number. You can find
+                                    it on your Steam profile.
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            CFX
+                            <FormField
+                              control={form.control}
+                              name="cfxAccount"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>CFX Account</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="https://forum.cfx.re/u/yourusername"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Your CFX forum account URL.
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </motion.div> */}
 
-                    {/* Roleplay Info */}
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.6, duration: 0.5 }}
-                    >
-                      <h3 className="text-xl font-semibold mb-4">
-                        Roleplay Information
-                      </h3>
-                      <div className="space-y-6">
-                        {/* Experience */}
-                        <FormField
-                          control={form.control}
-                          name="experience"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Roleplay Experience</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="Tell us about your previous roleplay experience..."
-                                  className="min-h-[100px]"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Briefly describe your previous roleplay
-                                experience, if any.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        {/* Character */}
-                        <FormField
-                          control={form.control}
-                          name="character"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Character Backstory</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="Provide a brief backstory for your character..."
-                                  className="min-h-[150px]"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Give us a brief backstory for the character you
-                                plan to roleplay as.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </motion.div>
+                        {/* Roleplay Info */}
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.6, duration: 0.5 }}
+                        >
+                          <h3 className="text-xl font-semibold mb-4">
+                            Roleplay Information
+                          </h3>
+                          <div className="space-y-6">
+                            {/* Experience */}
+                            <FormField
+                              control={form.control}
+                              name="experience"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Roleplay Experience</FormLabel>
+                                  <FormControl>
+                                    <Textarea
+                                      placeholder="Tell us about your previous roleplay experience..."
+                                      className="min-h-[100px]"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Briefly describe your previous roleplay
+                                    experience, if any.
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            {/* Character */}
+                            <FormField
+                              control={form.control}
+                              name="character"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Character Backstory</FormLabel>
+                                  <FormControl>
+                                    <Textarea
+                                      placeholder="Provide a brief backstory for your character..."
+                                      className="min-h-[150px]"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Give us a brief backstory for the character
+                                    you plan to roleplay as.
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </motion.div>
 
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full"
-                    >
-                      {isSubmitting ? "Submitting..." : "Submit Application"}
-                    </Button>
-                  </form>
-                </Form>
+                        <Button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="w-full"
+                        >
+                          {isSubmitting
+                            ? "Submitting..."
+                            : "Submit Application"}
+                        </Button>
+                      </form>
+                    </Form>
+                  </>
+                )}
               </div>
             </>
           ) : (

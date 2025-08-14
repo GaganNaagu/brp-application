@@ -6,25 +6,6 @@ import {
 } from "discord.js";
 
 let client: Client | null = null;
-
-export async function getDiscordClient(): Promise<Client> {
-  if (client && client.isReady()) {
-    return client;
-  }
-  client = new Client({
-    intents: [
-      GatewayIntentBits.Guilds,
-      GatewayIntentBits.DirectMessages,
-      GatewayIntentBits.GuildMessages,
-      GatewayIntentBits.MessageContent,
-      GatewayIntentBits.GuildMembers, // Needed to manage/fetch members & add roles
-    ],
-  });
-  await client.login(process.env.DISCORD_BOT_TOKEN);
-  await new Promise((resolve) => client?.once("ready", resolve));
-  return client;
-}
-
 const SERVER_NAME = "Bhayanak Roleplay"; // Configure this
 const SERVER_ICON =
   "https://r2.fivemanage.com/BR7Q2n0nR3UkMtqZisSkc/brp-logo.png"; // Configure this
@@ -35,29 +16,41 @@ const GUILD_ID = "1355580524915327066";
 const CHANNEL_ID = "1371111401892085931";
 const WHITELIST_ROLE_ID = "1371111147645964308"; // <-- SET THIS!
 
-export function initializeDiscordBot() {
+export async function getDiscordClient(): Promise<Client> {
+  if (client && client.isReady()) {
+    return client;
+  }
   if (!process.env.DISCORD_BOT_TOKEN) {
-    console.error("DISCORD_BOT_TOKEN is not set in the environment variables");
-    return;
+    throw new Error("DISCORD_BOT_TOKEN is not set in the environment variables");
   }
-  try {
-    client = new Client({
-      intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.DirectMessages,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMembers,
-      ],
-    });
-    client.on("ready", () => {
-      console.log(`Logged in as ${client?.user?.tag}!`);
-    });
-    client.login(process.env.DISCORD_BOT_TOKEN);
-  } catch (error) {
-    console.error("Failed to initialize Discord bot:", error);
-  }
+  client = new Client({
+    intents: [
+      GatewayIntentBits.Guilds,
+      GatewayIntentBits.DirectMessages,
+      GatewayIntentBits.GuildMessages,
+      GatewayIntentBits.MessageContent,
+      GatewayIntentBits.GuildMembers, // Needed to manage/fetch members & add roles
+    ],
+  });
+  client.on("ready", () => {
+    console.log(`Logged in as ${client?.user?.tag}!`);
+  });
+  await client.login(process.env.DISCORD_BOT_TOKEN);
+  await new Promise((resolve) => client?.once("ready", resolve));
+  return client;
 }
+
+// export async function initializeDiscordBot() {
+//   if (!process.env.DISCORD_BOT_TOKEN) {
+//     console.error("DISCORD_BOT_TOKEN is not set in the environment variables");
+//     return;
+//   }
+//   try {
+//     client = await getDiscordClient();
+//   } catch (error) {
+//     console.error("Failed to initialize Discord bot:", error);
+//   }
+// }
 
 export async function sendDirectMessage(
   userId: string,
@@ -85,8 +78,7 @@ export async function sendDirectMessage(
         ? `Hello there,\n\nAfter reviewing your application, we're excited to let you know that your whitelist application has been **ACCEPTED**! 🎉\n\n${
             reason ? `**Staff Note:** ${reason}\n\n` : ""
           }Your responses demonstrated a strong understanding of roleplay and alignment with our community values. We believe you'll be a great addition!\n\n**Next Steps:**\n1. Join our Discord server if you haven't already\n2. Read the rules in #server-rules\n3. Connect to the server using your whitelisted Steam account`
-        : `Hello there,\n\nAfter reviewing your application, we regret to inform you that your whitelist application has been **DENIED**."
-          }You may reapply after 14 days, taking into account the feedback provided.`
+        : `Hello there,\n\nAfter reviewing your application, we regret to inform you that your whitelist application has been **DENIED**.\nYou can Reapply.`
     )
     .addFields(
       {

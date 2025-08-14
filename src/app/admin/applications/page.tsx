@@ -139,9 +139,9 @@ export default function AdminApplications() {
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="container mx-auto p-4"
     >
@@ -183,21 +183,21 @@ export default function AdminApplications() {
                         <p className="col-span-2"><strong>CFX Account:</strong> {app.cfxAccount}</p>
                       </div>
                     </div>
-                    
+
                     <div>
                       <h3 className="text-lg font-semibold mb-2">Experience</h3>
                       <div className="bg-muted/50 rounded-lg p-3">
                         <p className="whitespace-pre-wrap break-words">{app.experience}</p>
                       </div>
                     </div>
-                    
+
                     <div>
                       <h3 className="text-lg font-semibold mb-2">Character Backstory</h3>
                       <div className="bg-muted/50 rounded-lg p-3">
                         <p className="whitespace-pre-wrap break-words">{app.character}</p>
                       </div>
                     </div>
-                    
+
                     <div className="pt-4">
                       <Input
                         placeholder="Reason (optional)"
@@ -206,14 +206,14 @@ export default function AdminApplications() {
                         className="mb-2"
                       />
                       <div className="flex space-x-2">
-                        <Button 
-                          onClick={() => handleStatusUpdate(app.id, 'approved')} 
+                        <Button
+                          onClick={() => handleStatusUpdate(app.id, 'approved')}
                           className="bg-green-500 hover:bg-green-600 flex-1"
                         >
                           Approve
                         </Button>
-                        <Button 
-                          onClick={() => handleStatusUpdate(app.id, 'denied')} 
+                        <Button
+                          onClick={() => handleStatusUpdate(app.id, 'denied')}
                           className="bg-red-500 hover:bg-red-600 flex-1"
                         >
                           Deny
